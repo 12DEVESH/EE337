@@ -1,0 +1,124 @@
+#include <at89c5131.h>
+#include "serial.c"
+#include "string.h"
+ 
+code unsigned char *items[4] = {"Digital Storage Oscilloscope", "Arbitrary Function Generator","Digital Multi-Meter","Digital Power Supply"};
+code unsigned char max[4] = {'5','5','8','6'};
+unsigned char current[4]={'5','5','8','6'};
+
+void Issue();
+void Return();
+
+//-------------------------------------------------
+void main(void)
+{
+  unsigned char ch = 0;
+  uart_init(); 
+  while (1)
+  {
+		transmit_string("Resources available: DSO-");
+		transmit_char(current[0]);
+		transmit_string(" AFG-");
+		transmit_char(current[1]);
+		transmit_string(" DMM-");
+		transmit_char(current[2]);
+		transmit_string(" DPS-");
+    transmit_char(current[3]);
+		transmit_string("\r\n");
+		transmit_string("Press I for Issue and R for Return\r\n");
+
+    ch = receive_char();
+
+    switch (ch)
+    {
+    case 'I':
+      Issue();
+      break;
+
+    case 'R':
+      Return();
+      break;
+
+    default:
+      continue;
+    }
+  }
+}
+
+void Issue()
+{
+  unsigned char ch1 = 0, ch2 = 0;
+  unsigned char index = 0;
+  transmit_string("Enter Resource to be borrowed:\r\n");
+  ch1 = receive_char();
+
+  switch (ch1)
+  {
+  case '1':
+    index = 0;
+    break;
+
+  case '2':
+    index = 1;
+    break;
+  case '3':
+    index = 2;
+    break;
+  case '4':
+    index = 3;
+    break;
+	
+  default:
+    transmit_string("No such index\r\n");
+    return;
+  }
+
+  transmit_string("Enter Quantity:");
+	ch2=receive_char();
+	if(current[index]!=48 && ch2<=current[index]){
+	current[index]=current[index]-ch2+48;
+	transmit_string("Requested resource allocated!\r\n");
+	}
+	else transmit_string("Requested resource not available...\r\n");
+}
+
+void Return(){
+  unsigned char ch1 = 0;
+	unsigned char ch2 = 0;
+  unsigned char index = 0;
+
+  transmit_string("Enter Resource to be returned:\r\n");
+  ch1 = receive_char();
+  switch (ch1)
+  {
+   case '1':
+    index = 0;
+    break;
+
+  case '2':
+    index = 1;
+    break;
+  case '3':
+    index = 2;
+    break;
+  case '4':
+    index = 3;
+    break;
+  default:
+    transmit_string("No such index\r\n");
+    return;
+  }
+	if(current[index]==max[index]){
+	transmit_string("You can’t return what you don’t have...\r\n");
+	return;
+	}
+  transmit_string("Enter Quantity\r\n");
+	ch2=receive_char();
+	if(current[index]+ch2-48>max[index]){
+	transmit_string("Returned resource out of bounds...\r\n");
+	}
+	else{
+	transmit_string	("Returned resource received!\r\n");
+	current[index]=current[index]+ch2-48;
+	}
+}
