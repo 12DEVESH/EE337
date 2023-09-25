@@ -1,0 +1,73 @@
+C51 COMPILER V9.60.7.0   Q2                                                                03/14/2023 15:03:49 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE Q2
+OBJECT MODULE PLACED IN .\Objects\Q2.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Q2.C OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\Q2.lst
+                    -) TABS(2) OBJECT(.\Objects\Q2.obj)
+
+line level    source
+
+   1          #include <at89c5131.h>
+   2          
+   3          /*
+   4          
+   5          Two frequency simultaneously with timers in interrupts mode.
+   6          
+   7          First LED1 time period is 2ms.
+   8          Second LED2 time period is 3ms.
+   9          
+  10          */
+  11          
+  12          sbit LED1=P3^6;
+  13          sbit LED2=P3^7;
+  14          
+  15          
+  16          void timer0_isr () interrupt 1
+  17          {
+  18   1         LED1 = ~LED1; // ~ bitwise compliment operator
+  19   1         TH0 = 0xF8; //Reload values for TH0 and TL0. Start timer 0.
+  20   1         TL0 = 0x30;
+  21   1         TR0 = 1;
+  22   1      }
+  23          
+  24          void timer1_isr () interrupt 3
+  25          {
+  26   1         LED2 = ~LED2;
+  27   1         TH1 = 0xF4;//Reload values for TH1 and TL1. Start timer 1.
+  28   1         TL1 = 0x48;
+  29   1         TR1 = 1;   
+  30   1      }
+  31          
+  32          //Main function
+  33          void main(void)
+  34          {
+  35   1        TMOD = 0x11 ; //mode 1 timer 0 and timer 1
+  36   1        TH0 = 0xf8 ; //Values for Timer 0 TH0
+  37   1        TH1 = 0xF4  ;//Values for Timer 1 TH1
+  38   1        TL0 =  0x30 ;//Values for Timer 0 TL0
+  39   1        TL1 =  0X48; //Values for Timer 1 TL1
+  40   1        ET0 = 1; //activate interrupts for both timers
+  41   1        ET1 = 1;
+  42   1        EA = 1;  //activate global interrupts
+  43   1        TR0 = 1; //start timer 0
+  44   1        TR1 = 1; //start timer 1
+  45   1        
+  46   1        while(1);
+  47   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     49    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.7.0   Q2                                                                03/14/2023 15:03:49 PAGE 2   
+
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
